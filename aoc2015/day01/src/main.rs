@@ -12,15 +12,10 @@ fn main() {
 }
 
 fn day01p01(contents: &String) {
-    let mut up = 0;
-    let mut down = 0;
+    let up = contents.chars().filter(|&x| x == '(').count();
+    let down = contents.chars().filter(|&x| x == ')').count();
 
-    for c in contents.chars() {
-        if c == '(' { up = up + 1; }
-        if c == ')' { down = down + 1; }
-    }
-
-    println!("Santa has to go to the {} floor.", up - down);
+    println!("Santa has to go to the {}th floor.", up - down);
 }
 
 fn day01p02(contents: &String) {
@@ -35,5 +30,5 @@ fn day01p02(contents: &String) {
         if floor == -1 { break; }
     }
 
-    println!("Santa steps into the basement at position {}", position);
+    println!("Santa steps into the basement at position {}.", position);
 }
