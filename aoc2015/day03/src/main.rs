@@ -2,6 +2,9 @@ use std::cmp::Eq;
 use std::collections::HashSet;
 use std::env;
 use std::fs;
+use std::iter::Iterator;
+use std::sync::mpsc;
+use std::thread;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -26,82 +29,60 @@ fn day03p01(contents: &String) {
 
     for s in contents.chars() {
         match s {
-            '^' => {
-                current_house.y += 1;
-                visited_houses.insert(current_house);
-            }
-            'v' => {
-                current_house.y -= 1;
-                visited_houses.insert(current_house);
-            }
-            '>' => {
-                current_house.x += 1;
-                visited_houses.insert(current_house);
-            }
-            '<' => {
-                current_house.x -= 1;
-                visited_houses.insert(current_house);
-            }
+            '^' => current_house.y += 1,
+            'v' => current_house.y -= 1,
+            '>' => current_house.x += 1,
+            '<' => current_house.x -= 1,
             _ => continue,
         }
+        visited_houses.insert(current_house);
     }
 
     println!("Number of visited houses: {}", visited_houses.len());
 }
 
 fn day03p02(contents: &String) {
+    let (tx_santa, rx) = mpsc::channel();
+    let tx_robot = tx_santa.clone();
     let start = House { x: 0, y: 0 };
+    let santa_list: Vec<char> = contents.chars().step_by(2).collect();
+    let robot_list: Vec<char> = contents.chars().skip(1).step_by(2).collect();
     let mut visited_houses: HashSet<House> = HashSet::new();
-    let mut current_santa_house = start;
-    let mut current_robot_house = start;
-    let mut santa: bool = true;
 
-    visited_houses.insert(current_santa_house);
+    visited_houses.insert(start);
 
-    for s in contents.chars() {
-        if santa {
-            match s {
-                '^' => {
-                    current_santa_house.y += 1;
-                    visited_houses.insert(current_santa_house);
-                }
-                'v' => {
-                    current_santa_house.y -= 1;
-                    visited_houses.insert(current_santa_house);
-                }
-                '>' => {
-                    current_santa_house.x += 1;
-                    visited_houses.insert(current_santa_house);
-                }
-                '<' => {
-                    current_santa_house.x -= 1;
-                    visited_houses.insert(current_santa_house);
-                }
+    thread::spawn(move || {
+        let mut current_santa_house = start;
+
+        for direction in santa_list {
+            match direction {
+                '^' => current_santa_house.y += 1,
+                'v' => current_santa_house.y -= 1,
+                '>' => current_santa_house.x += 1,
+                '<' => current_santa_house.x -= 1,
                 _ => continue,
             }
-            santa = false;
-        } else {
-            match s {
-                '^' => {
-                    current_robot_house.y += 1;
-                    visited_houses.insert(current_robot_house);
-                }
-                'v' => {
-                    current_robot_house.y -= 1;
-                    visited_houses.insert(current_robot_house);
-                }
-                '>' => {
-                    current_robot_house.x += 1;
-                    visited_houses.insert(current_robot_house);
-                }
-                '<' => {
-                    current_robot_house.x -= 1;
-                    visited_houses.insert(current_robot_house);
-                }
-                _ => continue,
-            }
-            santa = true;
+            tx_santa.send(current_santa_house).unwrap();
         }
+    });
+
+    thread::spawn(move || {
+        let mut current_robot_house = start;
+
+        for direction in robot_list {
+            match direction {
+                '^' => current_robot_house.y += 1,
+                'v' => current_robot_house.y -= 1,
+                '>' => current_robot_house.x += 1,
+                '<' => current_robot_house.x -= 1,
+                _ => continue,
+            }
+            tx_robot.send(current_robot_house).unwrap();
+        }
+    });
+
+    for received in rx {
+        visited_houses.insert(received);
     }
 
     println!("Number of visited houses: {}", visited_houses.len());
