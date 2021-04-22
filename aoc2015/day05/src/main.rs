@@ -44,7 +44,9 @@ fn twice_in_a_row(s: &str) -> bool {
         pairs.push(pair);
     }
 
-    return pairs.into_iter().any(|s| s.chars().nth(0) == s.chars().nth(1));
+    return pairs
+        .into_iter()
+        .any(|s| s.chars().nth(0) == s.chars().nth(1));
 }
 
 fn has_forbidden_strings(s: &str) -> bool {
