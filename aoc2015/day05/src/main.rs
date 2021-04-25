@@ -1,3 +1,4 @@
+use fancy_regex::Regex;
 use std::env;
 use std::fs;
 
@@ -7,9 +8,9 @@ fn main() {
 
     let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
 
-    day05p01(&contents);
+    day05p01(contents.to_string());
     println!("");
-    day05p02(&contents);
+    day05p02(contents.to_string());
 }
 
 fn is_vowel(c: char) -> bool {
@@ -31,7 +32,7 @@ fn has_three_vowels(s: &str) -> bool {
     return false;
 }
 
-fn twice_in_a_row(s: &str) -> bool {
+fn pairs(s: &str) -> Vec<String> {
     let mut pairs: Vec<String> = Vec::with_capacity(s.len());
 
     for i in 0..(s.len() - 1) {
@@ -44,7 +45,11 @@ fn twice_in_a_row(s: &str) -> bool {
         pairs.push(pair);
     }
 
-    return pairs
+    return pairs;
+}
+
+fn twice_in_a_row(s: &str) -> bool {
+    return pairs(s)
         .into_iter()
         .any(|s| s.chars().nth(0) == s.chars().nth(1));
 }
@@ -61,22 +66,34 @@ fn is_nice(s: &str) -> bool {
     return has_three_vowels(s) && twice_in_a_row(s) && has_no_forbidden_strings(s);
 }
 
-fn is_new_nice(s: &str) -> bool {
+fn has_non_overlapping_pairs(s: &str) -> bool {
+    for pair in pairs(s) {
+        if s.matches(&pair).count() >= 2 {
+            return true;
+        }
+    }
     return false;
 }
 
-fn day05p01(contents: &str) {
-    let tested: Vec<bool> = contents.lines().map(is_nice).collect();
-    let nice: Vec<bool> = tested.clone().into_iter().filter(|x| *x).collect();
-    let naughty: Vec<bool> = tested.clone().into_iter().filter(|x| !*x).collect();
-
-    println!("Number of     all strings: {}", tested.len());
-    println!("Number of    nice strings: {}", nice.len());
-    println!("Number of naughty strings: {}", naughty.len());
+fn has_efe(s: &str) -> bool {
+    let re: Regex = Regex::new(r"(.).\1").unwrap();
+    return re.is_match(s).unwrap();
 }
 
-fn day05p02(contents: &String) {
-    let tested: Vec<bool> = contents.lines().map(is_new_nice).collect();
+fn is_new_nice(s: &str) -> bool {
+    return has_non_overlapping_pairs(s) && has_efe(s);
+}
+
+fn day05p01(contents: String) {
+    test(contents, is_nice);
+}
+
+fn day05p02(contents: String) {
+    test(contents, is_new_nice);
+}
+
+fn test(contents: String, f: fn(&str) -> bool) {
+    let tested: Vec<bool> = contents.lines().map(f).collect();
     let nice: Vec<bool> = tested.clone().into_iter().filter(|x| *x).collect();
     let naughty: Vec<bool> = tested.clone().into_iter().filter(|x| !*x).collect();
 
