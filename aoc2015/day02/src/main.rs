@@ -12,7 +12,11 @@ fn main() {
 }
 
 fn min2(x: i32, y: i32) -> i32 {
-    if x < y { x } else {y }
+    if x < y {
+        x
+    } else {
+        y
+    }
 }
 
 fn day02p01(contents: &String) {
@@ -57,4 +61,3 @@ fn day02p02(contents: &String) {
 
     println!("Total ribbon: {}", total);
 }
-
