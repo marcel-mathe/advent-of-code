@@ -23,6 +23,12 @@ struct House {
     y: i32,
 }
 
+impl std::fmt::Display for House {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{{x: {}, y: {}}}", self.x, self.y)
+    }
+}
+
 fn day03p01(contents: &String) {
     let mut visited_houses: HashSet<House> = HashSet::new();
     let mut current_house = House { x: 0, y: 0 };
