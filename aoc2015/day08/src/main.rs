@@ -51,9 +51,10 @@ fn count_line(line: &str) -> i32 {
 }
 
 fn day08p01(contents: &String) {
-    // we have to subtract the newlines
+    // all characters minus newlines
     let code_count = (contents.chars().count() - contents.lines().count()) as i32;
-    let memory_count = contents.lines().map(|x| count_line(x)).sum::<i32>();
+    // all unescaped characters
+    let memory_count = contents.lines().fold(0, |acc, x| acc + count_line(x));
 
     println!("Code count: {}", code_count);
     println!("Memory count: {}", memory_count);
