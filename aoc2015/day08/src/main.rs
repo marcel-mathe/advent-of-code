@@ -23,10 +23,10 @@ fn unescape(s: &str) -> Option<String> {
         }
 
         match queue.pop_front() {
-            Some('\"') => s.push('#'),
-            Some('\\') => s.push('#'),
+            Some('\"') => s.push('A'),
+            Some('\\') => s.push('B'),
             Some('x') => {
-                s.push('#');
+                s.push('C');
                 queue.pop_front();
                 queue.pop_front();
             }
@@ -46,10 +46,6 @@ fn count_line(line: &str) -> i32 {
         .strip_prefix("\"")
         .and_then(|s| s.strip_suffix("\""))
         .and_then(|s| unescape(&s));
-
-    let s = String::from(line);
-    let g = f.clone().unwrap();
-    println!("{}, {}, {}, {}", s, s.len(), g, g.len());
 
     match f {
         None => 0,
