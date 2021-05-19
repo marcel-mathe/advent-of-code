@@ -43,14 +43,12 @@ fn unescape(s: &str) -> Option<String> {
  * after removing any quoting
  **/
 fn count_line(line: &str) -> i32 {
-    let f = line
+    return line
         .strip_prefix("\"")
         .and_then(|s| s.strip_suffix("\""))
         .and_then(|s| unescape(&s))
         .map(|s| s.len() as i32)
         .unwrap_or(0);
-
-    return f;
 }
 
 fn day08p01(contents: &String) {
