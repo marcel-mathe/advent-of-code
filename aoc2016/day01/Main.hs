@@ -3,6 +3,7 @@ module Main where
 import System.IO
 import Data.Maybe
 import Data.List
+import Text.ParserCombinators.ReadP
 
 -- a point on a grid
 data Point = Point {x :: Integer, y :: Integer}
@@ -30,28 +31,45 @@ type Steps = Integer
 data Move = Move { rotation :: Rotation, steps :: Steps }
     deriving (Show)
 
--- is the char a comma
-isComma :: Char -> Bool
-isComma = flip elem ","
+-- parse a comma
+commaP :: ReadP Char
+commaP = char ','
 
--- remove all commas in a given list of strings
-removeComma :: [String] -> [String]
-removeComma = map (filter $ not . isComma)
+-- parse a rotation, L|R
+rotationP :: ReadP Rotation
+rotationP = do
+    rot <- choice [char c | c <- "LR"]
+    case rot of
+        'L' -> return L
+        'R' -> return R
 
--- try to parse a string into a move
-parseMove :: String -> Maybe Move
-parseMove (rotation:steps) = case rotation of
-        'L' -> Just leftMove
-        'R' -> Just rightMove
-        _   -> Nothing
-    where
-        iSteps = read steps :: Integer
-        leftMove = Move L iSteps
-        rightMove = Move R iSteps
+-- parse a digit
+digitP :: ReadP Char
+digitP = satisfy (\char -> char >= '0' && char <= '9')
 
--- parse a list of strings into moves
-parseMoves :: [String] -> [Move]
-parseMoves = map $ fromJust . parseMove
+-- parse a step, many digits
+stepP :: ReadP Integer
+stepP = do 
+    parse <- many1 digitP
+    return (read parse)
+
+-- parse a single move
+moveP :: ReadP Move
+moveP = do
+    skipMany commaP             -- comma, optional
+    skipSpaces                  -- as the name says
+    rotation <- rotationP       -- rotation, L | R
+    steps <- stepP              -- steps, digits, at least one
+    return (Move rotation steps)
+
+-- parse a list of moves
+movesP :: ReadP [Move]
+movesP = many1 moveP
+
+-- parse a list of moves and get the result,
+-- the first of the pair of the last list entry
+parseMoves :: String -> [Move]
+parseMoves s = fst $ head $ reverse $ readP_to_S movesP s
 
 -- change direction according to a rotation command
 changeDirection :: Direction -> Rotation -> Direction
@@ -88,7 +106,7 @@ walkSingle m p = new_person
         new_y = (y (location p))
             + (stepsInYDirection (steps m) new_direction)
         new_location = Point { x = new_x, y = new_y }
-        new_visited = (visited p) ++ (between (location p) new_location)
+        new_visited = (visited p) ++ (Main.between (location p) new_location)
         new_person = Person {
             location = new_location,
             direction = new_direction,
@@ -139,8 +157,7 @@ problem1 = do
     let agent = Person { location = start, direction = N, visited = [] }
     putStrLn "Problem 1"
     content <- readFile "input/input.txt"
-    let moves = parseMoves $ removeComma $ words content
-    let hq = location $ walk moves agent
+    let hq = location $ walk (parseMoves content) agent
     putStrLn $ (show $ manhattan start hq) ++ " Steps"
 
 -- find the solution to problem 2,
@@ -154,8 +171,7 @@ problem2 = do
     let agent = Person { location = start, direction = N, visited = [] }
     putStrLn "Problem 2"
     content <- readFile "input/input.txt"
-    let moves = parseMoves $ removeComma $ words content
-    let hq = head $ duplicates $ visited $ walk moves agent
+    let hq = head $ duplicates $ visited $ walk (parseMoves content) agent
     putStrLn $ (show $ manhattan start hq) ++ " Steps"
 
 -- solve all problems    
