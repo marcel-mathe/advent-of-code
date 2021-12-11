@@ -30,27 +30,22 @@ stepsInYDirection _ _ = 0
 -- walk a single move,
 -- remember all locations between start and end location,
 -- and return an updated person
-walkSingle :: Move -> Person -> Person
-walkSingle m p = new_person
+walkSingle :: Person -> Move -> Person
+walkSingle p m = Person new_location new_direction new_visited
     where
         new_direction = changeDirection (direction p) (rotation m)
         new_x = (x (location p))
             + (stepsInXDirection (steps m) new_direction)
         new_y = (y (location p))
             + (stepsInYDirection (steps m) new_direction)
-        new_location = Point { x = new_x, y = new_y }
+        new_location = Point new_x new_y
         new_visited = (visited p) ++ (Main.between (location p) new_location)
-        new_person = Person {
-            location = new_location,
-            direction = new_direction,
-            visited = new_visited }
 
 -- walk a list of moves with a goven person,
 -- return person at the end
 -- same as walk, but with remembered places
-walk :: [Move] -> Person -> Person
-walk [] p = p
-walk (m:ms) p = walk ms (walkSingle m p)
+walk :: Person -> [Move] -> Person
+walk p ms = foldl walkSingle p ms
 
 -- manhattan (or taxicab distance) between two points,
 -- the absolute difference of their coordinates
@@ -86,11 +81,11 @@ between p1 p2
 -- distance is manhattan style, not euclidean
 problem1 :: IO ()
 problem1 = do
-    let start = Point { x = 0, y = 0}
-    let agent = Person { location = start, direction = N, visited = [] }
+    let start = Point 0 0
+    let agent = Person start N []
     putStrLn "Problem 1"
     content <- readFile "input/input.txt"
-    let hq = location $ walk (parseMoves content) agent
+    let hq = location $ walk agent (parseMoves content)
     putStrLn $ (show $ manhattan start hq) ++ " Steps"
 
 -- find the solution to problem 2,
@@ -100,11 +95,11 @@ problem1 = do
 -- not just between moves
 problem2 :: IO ()
 problem2 = do
-    let start = Point { x = 0, y = 0}
-    let agent = Person { location = start, direction = N, visited = [] }
+    let start = Point 0 0
+    let agent = Person start N []
     putStrLn "Problem 2"
     content <- readFile "input/input.txt"
-    let hq = head $ duplicates $ visited $ walk (parseMoves content) agent
+    let hq = head $ duplicates $ visited $ walk agent (parseMoves content)
     putStrLn $ (show $ manhattan start hq) ++ " Steps"
 
 -- solve all problems    

@@ -58,7 +58,7 @@ moveP = do
     skipSpaces                  -- as the name says
     rotation <- rotationP       -- rotation, L | R
     steps <- stepP              -- steps, digits, at least one
-    return (Move rotation steps)
+    return $ Move rotation steps
 
 -- parse a list of moves
 movesP :: ReadP [Move]
