@@ -2,6 +2,7 @@ module Parser where
 
 import Data.List
 import Text.ParserCombinators.ReadP
+import Data.Char (isDigit)
 
 -- a point on a grid
 data Point = Point {x :: Integer, y :: Integer}
@@ -43,11 +44,11 @@ rotationP = do
 
 -- parse a digit
 digitP :: ReadP Char
-digitP = satisfy (\char -> char >= '0' && char <= '9')
+digitP = satisfy isDigit
 
 -- parse a step, many digits
 stepP :: ReadP Integer
-stepP = do 
+stepP = do
     parse <- many1 digitP
     return (read parse)
 
@@ -57,8 +58,7 @@ moveP = do
     skipMany commaP             -- comma, optional
     skipSpaces                  -- as the name says
     rotation <- rotationP       -- rotation, L | R
-    steps <- stepP              -- steps, digits, at least one
-    return $ Move rotation steps
+    Move rotation <$> stepP     -- steps, digits, at least one
 
 -- parse a list of moves
 movesP :: ReadP [Move]
@@ -67,4 +67,4 @@ movesP = many1 moveP
 -- parse a list of moves and get the result,
 -- the first of the pair of the last list entry
 parseMoves :: String -> [Move]
-parseMoves s = fst $ head $ reverse $ readP_to_S movesP s
+parseMoves s = fst $ last (readP_to_S movesP s)
