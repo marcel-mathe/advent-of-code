@@ -30,4 +30,4 @@ eventsP = many1 singleEventP
 
 -- parse a list of events and get the result
 parseEvents :: String -> [NumpadEvent]
-parseEvents s = fst $ head $ reverse $ readP_to_S eventsP s
+parseEvents s = fst $ last (readP_to_S eventsP s)
