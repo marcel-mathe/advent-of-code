@@ -13,9 +13,7 @@ off = '.'
 
 -- convert rectangle commands into coord tuples
 rectangleCoords :: Command -> [(Int, Int)]
-rectangleCoords c =
-  let (Rect b a) = c
-   in [(x, y) | x <- [0 .. (a - 1)], y <- [0 .. (b - 1)]]
+rectangleCoords (Rect b a) = [(x, y) | x <- [0 .. (a - 1)], y <- [0 .. (b - 1)]]
 
 -- update the value of the grid at position (x, y) to $char
 updateLight :: Char -> (Int, Int) -> Grid -> Grid
