@@ -22,7 +22,7 @@ fun day01() {
     }
 
     val solution1: Int = elfs.maxBy { it.calories }.calories
-    val solution2: Int = -1
+    val solution2: Int = elfs.sortedBy { it.calories }.takeLast(3).sumOf { it.calories }
 
     printDay(1, solution1, solution2)
 }
