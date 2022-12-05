@@ -32,11 +32,8 @@ tailrec fun findCommonBadges(badges: MutableList<Char>, s: List<String>): Mutabl
 }
 
 /* find the common item in each rucksack (= line) */
-tailrec fun findCommonItems(items: MutableList<Char>, s: List<String>): List<Char> {
-    return if (s.isEmpty()) {
-        items
-    } else {
-        val (line) = s.take(1)
+fun findCommonItems(s: List<String>): List<Char> {
+    return s.fold((mutableListOf())) { items, line ->
         val half = line.length / 2 // guaranteed by the input to be an integer
         val firstCompartment = line.subSequence(0, half)
         val secondCompartment = line.subSequence(half, line.length)
@@ -45,7 +42,7 @@ tailrec fun findCommonItems(items: MutableList<Char>, s: List<String>): List<Cha
         val dupItem = duplicates.toSet().first() // we only care for the item, not how often
         items.add(dupItem)
 
-        findCommonItems(items, s.drop(1))
+        items
     }
 }
 
@@ -55,7 +52,7 @@ fun day03() {
 
     printDay(
         3,
-        findCommonItems(mutableListOf(), input).sumOf(::getPriority),
+        findCommonItems(input).sumOf(::getPriority),
         findCommonBadges(mutableListOf(), input).sumOf(::getPriority)
     )
 }
