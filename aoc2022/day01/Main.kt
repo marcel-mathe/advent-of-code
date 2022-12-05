@@ -1,12 +1,39 @@
 import java.io.File
 
 fun main() {
-    day02()
+    day03()
+}
+
+/* map char to priority */
+fun getPriority(c: Char): Int {
+    return if (c.isLowerCase()) {
+        c.code - 96
+    } else {
+        c.code - 38
+    }
+}
+
+/* double items in the rucksack */
+fun day03() {
+    val prio = mutableListOf<Int>()
+
+    File("input/input03.txt").forEachLine {
+        val half = it.length / 2 // guaranteed by the input to be a integer
+        val firstCompartment = it.subSequence(0, half)
+        val secondCompartment = it.subSequence(half, it.length)
+        // first part of the pair contains everything fulfilling the predicate, second the rest
+        val duplicates = firstCompartment.partition { c -> secondCompartment.contains(c, false) }.first
+        val dupChar = duplicates.toSet().first() // we only care for the item, not how often
+        prio.add(getPriority(dupChar))
+    }
+
+    printDay(3, prio.sum(), -1)
 }
 
 const val WIN = 6
 const val DRAW = 3
 const val LOSE = 0
+
 enum class Shape { A, B, C, X, Y, Z }
 data class Round(val opponent: Shape, val player: Shape)
 
