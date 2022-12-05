@@ -13,21 +13,51 @@ fun getPriority(c: Char): Int {
     }
 }
 
-/* double items in the rucksack */
-fun day03() {
-    val prio = mutableListOf<Int>()
+/* find the common item (= badge) in the rucksack of three elfs */
+tailrec fun findCommonBadges(badges: MutableList<Char>, s: List<String>): MutableList<Char> {
+    return if (s.isEmpty()) {
+        badges
+    } else {
+        val (elf1, elf2, elf3) = s.take(3)
+        // common chars in elf1 and elf2
+        val oneTwo = elf1.partition { c -> elf2.contains(c, false) }.first
+        // common chars in elf2 and elf3
+        val twoThree = elf2.partition { c -> elf3.contains(c, false) }.first
+        // the char in all elfs
+        val badge = (oneTwo.toList() intersect twoThree.toList().toSet()).first()
+        badges.add(badge)
 
-    File("input/input03.txt").forEachLine {
-        val half = it.length / 2 // guaranteed by the input to be a integer
-        val firstCompartment = it.subSequence(0, half)
-        val secondCompartment = it.subSequence(half, it.length)
+        findCommonBadges(badges, s.drop(3))
+    }
+}
+
+/* find the common item in each rucksack (= line) */
+tailrec fun findCommonItems(items: MutableList<Char>, s: List<String>): List<Char> {
+    return if (s.isEmpty()) {
+        items
+    } else {
+        val (line) = s.take(1)
+        val half = line.length / 2 // guaranteed by the input to be an integer
+        val firstCompartment = line.subSequence(0, half)
+        val secondCompartment = line.subSequence(half, line.length)
         // first part of the pair contains everything fulfilling the predicate, second the rest
         val duplicates = firstCompartment.partition { c -> secondCompartment.contains(c, false) }.first
-        val dupChar = duplicates.toSet().first() // we only care for the item, not how often
-        prio.add(getPriority(dupChar))
-    }
+        val dupItem = duplicates.toSet().first() // we only care for the item, not how often
+        items.add(dupItem)
 
-    printDay(3, prio.sum(), -1)
+        findCommonItems(items, s.drop(1))
+    }
+}
+
+/* double items in the rucksack */
+fun day03() {
+    val input = File("input/input03.txt").readLines()
+
+    printDay(
+        3,
+        findCommonItems(mutableListOf(), input).sumOf(::getPriority),
+        findCommonBadges(mutableListOf(), input).sumOf(::getPriority)
+    )
 }
 
 const val WIN = 6
