@@ -24,11 +24,20 @@ fun day04() {
         return if (b1 || b2) 1 else 0
     }
 
-    // just count the full pairs
-    val countOfFullPairs = File("input/input04.txt").readLines()
-        .sumOf { it -> fullyContains(convertToRange(it)) }
+    /* 1 if any overlap, 0 otherwise */
+    fun overlaps(ranges: Pair<IntRange, IntRange>): Int {
+        val b1 = ranges.first.any { i -> ranges.second.contains(i) }
+        val b2 = ranges.second.any { i -> ranges.first.contains(i) }
 
-    printDay(4, countOfFullPairs, -1)
+        return if (b1 || b2) 1 else 0
+    }
+
+    // count the pairs
+    val input = File("input/input04.txt").readLines()
+    val countOfFullPairs = input.sumOf { it -> fullyContains(convertToRange(it)) }
+    val countOfOverlaps = input.sumOf { it -> overlaps(convertToRange(it)) }
+
+    printDay(4, countOfFullPairs, countOfOverlaps)
 }
 
 /* double items in the rucksack */
