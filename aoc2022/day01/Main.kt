@@ -6,7 +6,29 @@ fun main() {
 
 /* camp cleanup */
 fun day04() {
+    /* convert line into a pair of ranges */
+    fun convertToRange(input: String): Pair<IntRange, IntRange> {
+        val (f, s) = input.split(",")
+        val (f1, f2) = f.split("-")
+        val (s1, s2) = s.split("-")
+        val first = (f1.toInt()).rangeTo(f2.toInt())
+        val second = (s1.toInt()).rangeTo(s2.toInt())
+        return Pair(first, second)
+    }
 
+    /* 1 if full contained, 0 otherwise */
+    fun fullyContains(ranges: Pair<IntRange, IntRange>): Int {
+        val b1 = ranges.first.all { i -> ranges.second.contains(i) }
+        val b2 = ranges.second.all { i -> ranges.first.contains(i) }
+
+        return if (b1 || b2) 1 else 0
+    }
+
+    // just count the full pairs
+    val countOfFullPairs = File("input/input04.txt").readLines()
+        .sumOf { it -> fullyContains(convertToRange(it)) }
+
+    printDay(4, countOfFullPairs, -1)
 }
 
 /* double items in the rucksack */
@@ -65,6 +87,7 @@ fun day03() {
 const val WIN = 6
 const val DRAW = 3
 const val LOSE = 0
+
 enum class Shape { A, B, C, X, Y, Z }
 
 /* rock paper scissors */
