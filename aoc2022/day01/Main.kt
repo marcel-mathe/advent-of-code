@@ -1,7 +1,94 @@
 import java.io.File
+import kotlin.collections.ArrayDeque as ArrayDeque
 
 fun main() {
-    day04()
+    day05()
+}
+
+/* supply stacks */
+fun day05() {
+    /* example stack and starting state */
+    val exampleStack = mapOf(
+        1 to ArrayDeque<Char>(),
+        2 to ArrayDeque(),
+        3 to ArrayDeque()
+    )
+
+    exampleStack[1]?.addAll(listOf('N', 'Z'))
+    exampleStack[2]?.addAll(listOf('D', 'C', 'M'))
+    exampleStack[3]?.add('P')
+
+    /* real input stack and starting state, Cheater McCheater */
+    val realStack = mapOf(
+        1 to ArrayDeque<Char>(),
+        2 to ArrayDeque(),
+        3 to ArrayDeque(),
+        4 to ArrayDeque(),
+        5 to ArrayDeque(),
+        6 to ArrayDeque(),
+        7 to ArrayDeque(),
+        8 to ArrayDeque(),
+        9 to ArrayDeque()
+    )
+
+    realStack[1]?.addAll(listOf('T', 'F', 'V', 'Z', 'C', 'W', 'S', 'Q'))
+    realStack[2]?.addAll(listOf('B', 'R', 'Q'))
+    realStack[3]?.addAll(listOf('S', 'M', 'P', 'Q', 'T', 'Z', 'B'))
+    realStack[4]?.addAll(listOf('H', 'Q', 'R', 'F', 'V', 'D'))
+    realStack[5]?.addAll(listOf('P', 'T', 'S', 'B', 'D', 'L', 'G', 'J'))
+    realStack[6]?.addAll(listOf('Z', 'T', 'R', 'W'))
+    realStack[7]?.addAll(listOf('J', 'R', 'F', 'S', 'N', 'M', 'Q', 'H'))
+    realStack[8]?.addAll(listOf('W', 'H', 'F', 'N', 'R'))
+    realStack[9]?.addAll(listOf('B', 'R', 'P', 'Q', 'T', 'Z', 'J'))
+
+    tailrec fun rearrange9000(
+        stack: Map<Int, ArrayDeque<Char>>,
+        howOften: Int,
+        fromWhere: Int,
+        toWhere: Int
+    ): Map<Int, ArrayDeque<Char>> {
+        return if (howOften <= 0) {
+            stack
+        } else {
+            val tmp = stack[fromWhere]?.removeFirst() as Char
+            stack[toWhere]?.addFirst(tmp)
+
+            rearrange9000(stack, howOften - 1, fromWhere, toWhere)
+        }
+    }
+
+    val sol01 = File("input/input05.txt").readLines().drop(10).fold(realStack.toMap()) { stack, line ->
+        val splitLine = line.split(Regex("\\s"), 6)
+        val howOften = splitLine[1].toInt()
+        val fromWhere = splitLine[3].toInt()
+        val toWhere = splitLine[5].toInt()
+
+        rearrange9000(stack, howOften, fromWhere, toWhere)
+    }
+        .values
+        .fold("") { acc, stack -> acc.plus(stack.first()) }
+
+    val ex01 = File("input/ex05.txt").readLines().drop(5).fold(exampleStack.toMap()) { stack, line ->
+        val splitLine = line.split(Regex("\\s"), 6)
+        val howOften = splitLine[1].toInt()
+        val fromWhere = splitLine[3].toInt()
+        val toWhere = splitLine[5].toInt()
+
+        rearrange9000(stack, howOften, fromWhere, toWhere)
+    }
+        .values
+        .fold("") { acc, stack -> acc.plus(stack.first()) }
+
+    val ex02 = -1
+    val sol02 = -1
+
+    println("Day 05:")
+    println("-------")
+    println("Example 01: $ex01")
+    println("Example 02: $ex02")
+    println()
+    println("Solution 01: $sol01")
+    println("Solution 02: $sol02")
 }
 
 /* camp cleanup */
