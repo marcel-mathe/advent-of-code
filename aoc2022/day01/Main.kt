@@ -33,11 +33,12 @@ fun day04() {
     }
 
     // count the pairs
-    val input = File("input/input04.txt").readLines()
-    val countOfFullPairs = input.sumOf { it -> fullyContains(convertToRange(it)) }
-    val countOfOverlaps = input.sumOf { it -> overlaps(convertToRange(it)) }
-
-    printDay(4, countOfFullPairs, countOfOverlaps)
+    File("input/input04.txt").readLines().let {
+        printDay(
+            4,
+            it.sumOf { i -> fullyContains(convertToRange(i)) },
+            it.sumOf { i -> overlaps(convertToRange(i)) })
+    }
 }
 
 /* double items in the rucksack */
@@ -84,13 +85,13 @@ fun day03() {
         }
     }
 
-    val input = File("input/input03.txt").readLines()
-
-    printDay(
-        3,
-        findCommonItems(input).sumOf(::getPriority),
-        findCommonBadges(mutableListOf(), input).sumOf(::getPriority)
-    )
+    File("input/input03.txt").readLines().let {
+        printDay(
+            3,
+            findCommonItems(it).sumOf(::getPriority),
+            findCommonBadges(mutableListOf(), it).sumOf(::getPriority)
+        )
+    }
 }
 
 const val WIN = 6
