@@ -57,7 +57,45 @@ fun day05() {
         }
     }
 
-    val sol01 = File("input/input05.txt").readLines().drop(10).fold(realStack.toMap()) { stack, line ->
+    tailrec fun rearrange9001(
+        stack: Map<Int, ArrayDeque<Char>>,
+        howOften: Int,
+        fromWhere: Int,
+        toWhere: Int
+    ): Map<Int, ArrayDeque<Char>> {
+        return if (howOften <= 0) {
+            stack
+        } else {
+            val tmpStack = ArrayDeque<Char>()
+
+            // remove from stack and save in temporary stack
+            for (i in 1..howOften) {
+                val tmp = stack[fromWhere]?.removeFirst() as Char
+                tmpStack.addFirst(tmp)
+            }
+
+            // add items in correct order back onto stack
+            for (item in tmpStack) {
+                stack[toWhere]?.addFirst(item)
+            }
+
+            // loop de loop
+            rearrange9001(stack, 0, fromWhere, toWhere)
+        }
+    }
+
+    val sol = File("input/input05.txt").readLines().drop(10).fold(realStack) { stack, line ->
+        val splitLine = line.split(Regex("\\s"), 6)
+        val howOften = splitLine[1].toInt()
+        val fromWhere = splitLine[3].toInt()
+        val toWhere = splitLine[5].toInt()
+
+        rearrange9001(stack, howOften, fromWhere, toWhere)
+    }
+        .values
+        .fold("") { acc, stack -> acc.plus(stack.first()) }
+
+    val ex = File("input/ex05.txt").readLines().drop(5).fold(exampleStack) { stack, line ->
         val splitLine = line.split(Regex("\\s"), 6)
         val howOften = splitLine[1].toInt()
         val fromWhere = splitLine[3].toInt()
@@ -67,28 +105,11 @@ fun day05() {
     }
         .values
         .fold("") { acc, stack -> acc.plus(stack.first()) }
-
-    val ex01 = File("input/ex05.txt").readLines().drop(5).fold(exampleStack.toMap()) { stack, line ->
-        val splitLine = line.split(Regex("\\s"), 6)
-        val howOften = splitLine[1].toInt()
-        val fromWhere = splitLine[3].toInt()
-        val toWhere = splitLine[5].toInt()
-
-        rearrange9000(stack, howOften, fromWhere, toWhere)
-    }
-        .values
-        .fold("") { acc, stack -> acc.plus(stack.first()) }
-
-    val ex02 = -1
-    val sol02 = -1
 
     println("Day 05:")
     println("-------")
-    println("Example 01: $ex01")
-    println("Example 02: $ex02")
-    println()
-    println("Solution 01: $sol01")
-    println("Solution 02: $sol02")
+    println("example:  $ex")
+    println("Solution: $sol")
 }
 
 /* camp cleanup */
