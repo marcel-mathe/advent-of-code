@@ -2,7 +2,20 @@ import java.io.File
 import kotlin.collections.ArrayDeque as ArrayDeque
 
 fun main() {
-    day05()
+    day06()
+}
+
+/* tuning trouble */
+fun day06 () {
+    val sopWindowSize = 4
+    val somWindowSize = 14
+
+    File("input/input06.txt").forEachLine {
+        val startOfPacket = it.windowed(sopWindowSize, 1).indexOfFirst { it.toSet().size == sopWindowSize } + sopWindowSize
+        val startOfMessage = it.windowed(somWindowSize, 1).indexOfFirst { it.toSet().size == somWindowSize } + somWindowSize
+
+        printDay(6, startOfPacket, startOfMessage)
+    }
 }
 
 /* supply stacks */
