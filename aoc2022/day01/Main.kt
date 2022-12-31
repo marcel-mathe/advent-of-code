@@ -2,14 +2,68 @@ import com.scalified.tree.TraversalAction
 import com.scalified.tree.TreeNode
 import com.scalified.tree.multinode.LinkedMultiTreeNode
 import java.io.File
+import kotlin.system.exitProcess
 
 fun main() {
     day08()
 }
 
 /* treetop tree house */
+
+// transpose a matrix
+// thx to: https://stackoverflow.com/questions/70230712/generic-transpose-or-anything-else-really-in-kotlin
+inline fun <reified T> transpose(xs: List<List<T>>): List<List<T>> {
+    val cols = xs[0].size
+    val rows = xs.size
+    return List(cols) { j ->
+        List(rows) { i ->
+            xs[i][j]
+        }
+    }
+}
+
 fun day08() {
-    printDay(8, -1, -1)
+    val grid = File("input/input08.txt").readLines().map { line -> line.toList().map { it.digitToInt() } }
+    val gridSize = grid.size
+
+    // all neighbours for tree (row, col) in a given grid
+    fun neighbours(row: Int, col: Int, grid: List<List<Int>>): List<List<Int>> {
+        // no neighbours on first and last column
+        if (col == 0) return emptyList()
+        if (col == (gridSize - 1)) return emptyList()
+
+        // no neighbours on first and last row
+        if (row == 0) return emptyList()
+        if (row == (gridSize - 1)) return emptyList()
+
+        // we actually have something to do
+        val gridT = transpose(grid)
+
+        val north = gridT[col].subList(0, row)
+        val east = grid[row].subList(col + 1, gridSize)
+        val south = gridT[col].subList(row + 1, gridSize)
+        val west = grid[row].subList(0, col)
+
+        return listOf(north, east, south, west)
+    }
+
+    // is a tree with a height of myValue visible with those neighbours
+    fun isVisible(neighbours: List<List<Int>>, myValue: Int): Boolean {
+        // we stand on one the sides, always visible
+        if (neighbours.isEmpty()) return true
+
+        return neighbours.any { it.all { v -> (v < myValue) } }
+    }
+
+    // sum of all visible Trees
+    val visibleTrees =
+        grid.flatMapIndexed { rowIndex, row ->
+            row.mapIndexed { colIndex, tree ->
+                isVisible(neighbours(rowIndex, colIndex, grid), tree)
+            }
+        }.count { it }
+
+    printDay(8, visibleTrees, -1)
 }
 
 /* no space left on device */
@@ -65,9 +119,9 @@ fun day07() {
             // dir output
             if (line.startsWith("dir")) {
                 val (_, name) = line.split(" ")
-                val node = LinkedMultiTreeNode<DirEntry>(DirEntry(name, -1, Filetype.DIRECTORY))
+                val node = LinkedMultiTreeNode(DirEntry(name, -1, Filetype.DIRECTORY))
                 val newFs = fs.clone()
-                val whereToAdd = newFs.find { it -> it.data().name == curDir }
+                val whereToAdd = newFs.find { it.data().name == curDir }
 
                 whereToAdd?.add(node)
 
@@ -77,9 +131,9 @@ fun day07() {
             // file output
             if (line.matches(Regex("^\\d+\\s.+"))) {
                 val (size, name) = line.split(" ")
-                val node = LinkedMultiTreeNode<DirEntry>(DirEntry(name, size.toInt(), Filetype.FILE))
+                val node = LinkedMultiTreeNode(DirEntry(name, size.toInt(), Filetype.FILE))
                 val newFs = fs.clone()
-                val whereToAdd = newFs.find { it -> it.data().name == curDir }
+                val whereToAdd = newFs.find { it.data().name == curDir }
 
                 whereToAdd?.add(node)
 
@@ -95,7 +149,7 @@ fun day07() {
     fun totalSize(t: TreeNode<DirEntry>): Int {
         return when (t.data().type) {
             Filetype.FILE -> t.data().size
-            Filetype.DIRECTORY -> t.subtrees().sumOf { it -> totalSize(it) }
+            Filetype.DIRECTORY -> t.subtrees().sumOf { totalSize(it) }
         }
     }
 
@@ -105,7 +159,7 @@ fun day07() {
     val action: TraversalAction<TreeNode<DirEntry>> = object : TraversalAction<TreeNode<DirEntry>> {
         override fun perform(node: TreeNode<DirEntry>) {
             if (node.data().type == Filetype.DIRECTORY)
-            // we have to return Unit, so i think this is the way(?)
+            // we have to return Unit, so I think this is the way(?)
                 listOfDirectorySizes[node.data().name] = totalSize(node)
         }
 
@@ -114,13 +168,13 @@ fun day07() {
         }
     }
 
-    var root: TreeNode<DirEntry> = LinkedMultiTreeNode<DirEntry>(DirEntry("/", -1, Filetype.DIRECTORY))
+    var root: TreeNode<DirEntry> = LinkedMultiTreeNode(DirEntry("/", -1, Filetype.DIRECTORY))
     val input = File("input/input07.txt").readLines()
 
     root = modifyTree(root, "/", input)
     root.subtrees().map { it.traversePostOrder(action) }
 
-    TODO("die Antwort ist zu niedrig")
+    TODO("die answer is to low")
     printDay(7,
         listOfDirectorySizes.filterValues { it <= 100_000 }.entries.sumOf { it.value },
         -1
@@ -132,11 +186,11 @@ fun day06() {
     val sopWindowSize = 4
     val somWindowSize = 14
 
-    File("input/input06.txt").forEachLine {
+    File("input/input06.txt").forEachLine { line ->
         val startOfPacket =
-            it.windowed(sopWindowSize, 1).indexOfFirst { it.toSet().size == sopWindowSize } + sopWindowSize
+            line.windowed(sopWindowSize, 1).indexOfFirst { it.toSet().size == sopWindowSize } + sopWindowSize
         val startOfMessage =
-            it.windowed(somWindowSize, 1).indexOfFirst { it.toSet().size == somWindowSize } + somWindowSize
+            line.windowed(somWindowSize, 1).indexOfFirst { it.toSet().size == somWindowSize } + somWindowSize
 
         printDay(6, startOfPacket, startOfMessage)
     }
