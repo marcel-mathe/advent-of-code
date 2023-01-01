@@ -4,11 +4,15 @@ import com.scalified.tree.multinode.LinkedMultiTreeNode
 import java.io.File
 
 fun main() {
-    day08()
+    day09()
+}
+
+/* rope bridge */
+fun day09 () {
+    printDay(9, -1, -1)
 }
 
 /* treetop tree house */
-
 // transpose a matrix
 // thx to: https://stackoverflow.com/questions/70230712/generic-transpose-or-anything-else-really-in-kotlin
 inline fun <reified T> transpose(xs: List<List<T>>): List<List<T>> {
@@ -56,18 +60,18 @@ fun day08() {
         return neighbours.any { it.all { v -> (v < myValue) } }
     }
 
-    // compute the viewing distance in one direction from a tree
-    fun viewingDistance(trees: List<Int>, tree: Int): Int {
-         tailrec fun views(t: List<Int>, count: Int = 0): Int {
+    // count the visible trees in one direction
+    fun treesInView(trees: List<Int>, tree: Int): Int {
+         tailrec fun countVisibleTrees(t: List<Int>, count: Int = 0): Int {
             return if (t.isEmpty()) {
                 count
             } else if (t.first() >= tree) {
                 count + 1
             } else {
-                views(t.drop(1), count + 1)
+                countVisibleTrees(t.drop(1), count + 1)
             }
         }
-        return views(trees)
+        return countVisibleTrees(trees)
     }
 
     // multiply integer, woah
@@ -79,7 +83,7 @@ fun day08() {
     fun scenicScore(neighbours: List<List<Int>>, myValue: Int): Int {
         if (neighbours.isEmpty()) return 0
 
-        return neighbours.map { viewingDistance(it, myValue) }.reduce(::multiply)
+        return neighbours.map { treesInView(it, myValue) }.reduce(::multiply)
     }
 
     // sum of all visible Trees
