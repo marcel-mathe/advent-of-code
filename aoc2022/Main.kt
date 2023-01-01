@@ -2,7 +2,6 @@ import com.scalified.tree.TraversalAction
 import com.scalified.tree.TreeNode
 import com.scalified.tree.multinode.LinkedMultiTreeNode
 import java.io.File
-import kotlin.system.exitProcess
 
 fun main() {
     day08()
@@ -24,25 +23,27 @@ inline fun <reified T> transpose(xs: List<List<T>>): List<List<T>> {
 
 fun day08() {
     val grid = File("input/input08.txt").readLines().map { line -> line.toList().map { it.digitToInt() } }
-    val gridSize = grid.size
 
     // all neighbours for tree (row, col) in a given grid
     fun neighbours(row: Int, col: Int, grid: List<List<Int>>): List<List<Int>> {
         // no neighbours on first and last column
         if (col == 0) return emptyList()
-        if (col == (gridSize - 1)) return emptyList()
+        if (col == (grid.size - 1)) return emptyList()
 
         // no neighbours on first and last row
         if (row == 0) return emptyList()
-        if (row == (gridSize - 1)) return emptyList()
+        if (row == (grid.size - 1)) return emptyList()
 
         // we actually have something to do
         val gridT = transpose(grid)
 
-        val north = gridT[col].subList(0, row)
-        val east = grid[row].subList(col + 1, gridSize)
-        val south = gridT[col].subList(row + 1, gridSize)
-        val west = grid[row].subList(0, col)
+        // we need to have the list as seen from the tree,
+        // but we build ot from the edge
+        val north = gridT[col].subList(0, row).reversed()
+        val east = grid[row].subList(col + 1, grid.size)
+        val south = gridT[col].subList(row + 1, grid.size)
+        // same as above
+        val west = grid[row].subList(0, col).reversed()
 
         return listOf(north, east, south, west)
     }
@@ -55,6 +56,32 @@ fun day08() {
         return neighbours.any { it.all { v -> (v < myValue) } }
     }
 
+    // compute the viewing distance in one direction from a tree
+    fun viewingDistance(trees: List<Int>, tree: Int): Int {
+         tailrec fun views(t: List<Int>, count: Int = 0): Int {
+            return if (t.isEmpty()) {
+                count
+            } else if (t.first() >= tree) {
+                count + 1
+            } else {
+                views(t.drop(1), count + 1)
+            }
+        }
+        return views(trees)
+    }
+
+    // multiply integer, woah
+    fun multiply(a: Int, b: Int): Int {
+        return a * b
+    }
+
+    // compute the scenic score of a tree
+    fun scenicScore(neighbours: List<List<Int>>, myValue: Int): Int {
+        if (neighbours.isEmpty()) return 0
+
+        return neighbours.map { viewingDistance(it, myValue) }.reduce(::multiply)
+    }
+
     // sum of all visible Trees
     val visibleTrees =
         grid.flatMapIndexed { rowIndex, row ->
@@ -63,7 +90,14 @@ fun day08() {
             }
         }.count { it }
 
-    printDay(8, visibleTrees, -1)
+    val bestTreeValue =
+        grid.flatMapIndexed { rowIndex, row ->
+            row.mapIndexed { colIndex, tree ->
+                scenicScore(neighbours(rowIndex, colIndex, grid), tree)
+            }
+        }.max()
+
+    printDay(8, visibleTrees, bestTreeValue)
 }
 
 /* no space left on device */
