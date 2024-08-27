@@ -1,6 +1,8 @@
 #lang racket
 
-(provide print-example print-day)
+(provide print-example
+         print-day
+         empty-string?)
 
 (define (correct solution try)
   (cond
@@ -25,3 +27,6 @@
    part
    result
    (correct ok result)))
+
+(define (empty-string? s)
+  (not (non-empty-string? s)))

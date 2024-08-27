@@ -1,6 +1,8 @@
 #lang racket
+
 (require racket/file)
 (require racket/string)
+
 (require "advent-tools.rkt")
 
 ;; day 01
@@ -9,7 +11,7 @@
 ; get a list of the first and the last digit
 (define (combine-first-last-digits str)
   (let ([digits (list->string (filter char-numeric? (string->list str)))])
-    (if (= (string-length digits) 0)
+    (if (empty-string? digits)
         ; no digits at all, early exit
         '(0)
         ; everything else
@@ -34,7 +36,7 @@
 (define (replace-word-digits str)
   (letrec
       ([f (λ (acc s)
-            (if (= (string-length s) 0) 
+            (if (empty-string? s)
                 ; base case
                 acc
                 ; everything else
