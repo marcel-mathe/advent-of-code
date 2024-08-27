@@ -1,4 +1,6 @@
 #lang racket
+
+(require racket/contract)
 (require racket/file)
 (require racket/string)
 
@@ -15,34 +17,34 @@
 (define *limit-blue* 14)
 
 ; does the set fall inside the limits?
-; (-> set bool)
-(define (in-rgb-limits? s)
+(define/contract (in-rgb-limits? s)
+  (-> set? boolean?)
   (and (<= 0 (set-r s) *limit-red*)
        (<= 0 (set-g s) *limit-green*)
        (<= 0 (set-b s) *limit-blue*)))
 
 ; is the game possible?
-; (-> game bool)
-(define (possible-game? g)
+(define/contract (possible-game? g)
+  (-> game? boolean?)
   (andmap in-rgb-limits? (game-sets g)))
 
 ; input -> list of games
-; (-> (listof string?) (listof game?))
-(define (parse-input ls)
+(define/contract (parse-input ls)
+  (-> (listof string?) (listof game?))
   (map (λ (l) (parse-result! (parse-string game/p l))) ls))
 
 ; day 02 part 01
 ; sum of the ids of all possible games
-; (-> (listof string?) number?)
-(define (day-02-part-01 lines)
+(define/contract (day-02-part-01 lines)
+  (-> (listof string?) number?)
   (foldl +
          0
          (map game-id
               (filter possible-game? (parse-input lines)))))
 
 ; maximal number of cubes (per color) in this game
-; (-> game (listof integer?))
-(define (max-color-per-game g)
+(define/contract (max-color-per-game g)
+  (-> game? (listof integer?))
   (list (apply max (map set-r (game-sets g)))
         (apply max (map set-g (game-sets g)))
         (apply max (map set-b (game-sets g)))))
