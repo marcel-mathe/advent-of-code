@@ -87,7 +87,7 @@
 
 ; part 01
 (let ([result (day-01-part-01 input)]
-      [expected 53974])
+      [expected 54390])
   (print-day 1 1 result expected))
 
 ; example 02
@@ -104,5 +104,5 @@
 
 ; part 02
 (let ([result (day-01-part-02 input)]
-      [expected 52840])
+      [expected 54277])
   (print-day 1 2 result expected))
