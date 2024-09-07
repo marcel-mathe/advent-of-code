@@ -60,6 +60,6 @@ example = do
 main :: IO ()
 main = do
   -- "801b56a7"
-  print ("Problem 1: " ++ map takeSixth (take 8 (generateZeroMD5s "abbhdwsy")))
+  print ("Problem 1: " ++ map takeSixth (take 8 (generateZeroMD5s "uqwqemis")))
   -- "424a0197"
-  print ("Problem 2: " ++ generatePassword "abbhdwsy")
+  print ("Problem 2: " ++ generatePassword "uqwqemis")
